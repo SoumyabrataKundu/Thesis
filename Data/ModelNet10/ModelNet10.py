@@ -8,7 +8,6 @@ import sys
 sys.path.append('../../Steerable/')
 import Steerable.utils
 
-# Dataset Generation
 class ModelNet10(torch.utils.data.Dataset):
     def __init__(self, data_path, size, mode='train', rotate=False, rotate_z=False, jitter=False) -> None:
         if mode not in ['train', 'test']:
