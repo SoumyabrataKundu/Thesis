@@ -93,8 +93,6 @@ class ModelNet10(torch.utils.data.Dataset):
         jittered_data = np.clip(jittered_data + indices, -1+0.005, 1-0.005)
         return jittered_data
 
-
-
 def main(data_path, size, rotate, rotate_z, jitter):
     filename = 'ModelNet10_' + ('rotate' if rotate else ('rotate_z' if rotate_z else '')) + ('jitter' if jitter else '') + str(size) + '.hdf5'
     hdf5file = Steerable.utils.HDF5Dataset(filename)
@@ -102,8 +100,7 @@ def main(data_path, size, rotate, rotate_z, jitter):
     for mode in ['train', 'test']:
         dataset = ModelNet10(data_path=data_path, mode = mode, size=size, rotate=rotate, rotate_z=rotate_z, jitter=jitter)
         hdf5file.create_hdf5_dataset(mode, dataset)
-    
-    
+        
 if __name__== '__main__':
 
     import argparse

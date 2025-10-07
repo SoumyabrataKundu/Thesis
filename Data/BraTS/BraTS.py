@@ -39,31 +39,25 @@ class Decathlon(torch.utils.data.Dataset):
     def __len__(self):
         return self.n_samples
     
-tasks = ['Brain', 'Heart', 'Liver', 'Hippocampus', 'Prostate', 'Lung', 'Pancreas', 'HepaticVessel', 'Spleen', 'Colon']
-URL={task : f"https://msd-for-monai.s3-us-west-2.amazonaws.com/Task{i+1:02d}_{task}.tar" 
-            for i, task in enumerate(tasks)}
+URL="https://msd-for-monai.s3-us-west-2.amazonaws.com/Task01_Brain.tar"
 
-def main(task, data_path):
+def main(data_path):
     if data_path is None:
-        Steerable.utils.download_and_extract(URL[task], os.path.join(task, 'data'))
-        data_path = os.path.join('data', f'Task{tasks.index(task)+1:02d}_{task}')
+        Steerable.utils.download_and_extract(URL, 'data')
+        data_path = 'data/Task01_Brain'
         
-    data_path = os.path.join(task, data_path)
-    filename = task + '.hdf5'
-    hdf5file = Steerable.utils.HDF5Dataset(filename)
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(Decathlon(data_path=data_path), [0.7, 0.1, 0.2])
+    hdf5file = Steerable.utils.HDF5Dataset('BraTS.hdf5')
+    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(Decathlon(data_path=data_path), [340, 49, 95])
     datasets = {'train' : train_dataset, 'val' : val_dataset, 'test' : test_dataset}
  
     for mode in datasets:
         hdf5file.create_hdf5_dataset(mode, datasets[mode], variable_length=True)
-    
-    
+
 if __name__== '__main__':
 
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task", type=str, required=True)
     parser.add_argument("--data_path", type=str, default=None)
 
     args = parser.parse_args()

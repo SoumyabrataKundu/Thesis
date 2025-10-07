@@ -6,7 +6,6 @@ import sys
 sys.path.append('../../Steerable/')
 import Steerable.utils
 
-# Dataset Generation
 class RotFMNIST(torch.utils.data.Dataset):
     def __init__(self, data_path, mode, rotate=False) -> None:
         if mode not in ['train', 'test']:
@@ -30,7 +29,7 @@ class RotFMNIST(torch.utils.data.Dataset):
         image, label = self.data[index] 
 
         if self.rotate:
-            image = rotate(image[0], torch.randint(0, 360, (1,)).item(), reshape=False, order = 5)
+            image = rotate(image[0], torch.randint(0, 360, (1,)).item(), reshape=False, order = 1)
             image = torch.from_numpy(image).reshape(*image.shape) 
 
         return image, label
