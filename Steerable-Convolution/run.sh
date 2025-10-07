@@ -14,7 +14,7 @@ script="sensitivity"
 main_directory=$PWD
 jobs_done=0
 MAX_CONCURRENT_JOBS=28
-data_path="/project2/risi/soumyabratakundu/Data"
+data_path="../Data"
 
 wait_for_jobs() {
     while [ $(squeue -u $USER | tail -n +2 | wc -l) -ge $MAX_CONCURRENT_JOBS ]; do

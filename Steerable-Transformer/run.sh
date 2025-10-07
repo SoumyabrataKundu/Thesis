@@ -15,7 +15,7 @@ epochs=100
 
 # Job Parameters
 main_directory=$PWD
-data_path="/project2/risi/soumyabratakundu/Data"
+data_path="../Data"
 jobs_done=0
 MAX_CONCURRENT_JOBS=28
 
@@ -32,8 +32,8 @@ on_interrupt() {
 stty -echoctl
 trap on_interrupt SIGINT
 
-mkdir final_runs1 2>/dev/null
-cd final_runs1
+mkdir experiment_runs 2>/dev/null
+cd experiment_runs
 
 job_counter=0
 
