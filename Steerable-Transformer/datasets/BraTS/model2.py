@@ -12,11 +12,11 @@ class Model(torch.nn.Module):
         device='cuda' 
         n_angle = 256
         self.num_classes = 4
-        ratio = [8, 4, 1]
+        ratio = [8, 4, 2]
         channel = lambda factor: [x * factor for x in ratio]
+        mult = lambda channels, factor: [x * factor for x in channels]
 
-        encoder_dim = channel(16)
-        decoder_dim = channel(16)
+        mlp_dim = channel(16)
 
         self.convolution_stem1 = torch.nn.Sequential(
             snn.SE3Conv(4, channel(1), 7, n_angle=n_angle, stride=2),
@@ -30,25 +30,26 @@ class Model(torch.nn.Module):
         self.convolution_stem2 = torch.nn.Sequential(
             snn.SE3Conv(channel(2), channel(4), 5, n_angle=n_angle, padding='same'),
             snn.SE3NormNonLinearity(channel(4)),
-            snn.SE3Conv(channel(4), encoder_dim, 5, n_angle=n_angle, padding='same'),
+            snn.SE3Conv(channel(4), mlp_dim, 5, n_angle=n_angle, padding='same'),
             snn.SE3BatchNorm(),
         )
 
         self.pool2 = snn.SE3AvgPool(4)
 
         self.encoder_decoder = torch.nn.Sequential(
-            snn.SE3PositionwiseFeedforward(channel(16), channel(32)),
+            snn.SE3PositionwiseFeedforward(mlp_dim, mult(mlp_dim, 4)),
+            snn.SE3BatchNorm(),
         )
         
         self.convolution_head1 = torch.nn.Sequential(
-            snn.SE3Conv(channel(32), channel(4), 5, n_angle=n_angle, padding = 'same'),
+            snn.SE3Conv(mult(mlp_dim, 2), channel(4), 5, n_angle=n_angle, padding = 'same'),
             snn.SE3NormNonLinearity(channel(4)),
             snn.SE3Conv(channel(4), channel(2), 5, n_angle=n_angle, padding = 'same'),
             snn.SE3BatchNorm(),
         )
 
         self.convolution_head2 = torch.nn.Sequential(
-            snn.SE3Conv(channel(4), channel(1),5, n_angle=n_angle, padding = 'same'),
+            snn.SE3Conv(mult(channel(2), 2), channel(1),5, n_angle=n_angle, padding = 'same'),
             snn.SE3NormNonLinearity(channel(1)),
             snn.SE3BatchNorm(),
 	    snn.SE3Conv(channel(1),self.num_classes,5, n_angle=n_angle, padding = 'same'),
@@ -100,14 +101,14 @@ class Model(torch.nn.Module):
 ####################################################################################################################### 
 
 def get_datasets(data_path, rotate = True):
-    data_file = h5py.File(os.path.join(data_path, 'Brain_patched.hdf5'), 'r')
+    data_file = h5py.File(os.path.join(data_path, 'BraTS_patched.hdf5'), 'r')
     train_dataset = HDF5(data_file, mode='train')
     if rotate:
         train_dataset = RandomRotate(train_dataset)
     val_dataset = HDF5(data_file, mode='val')
     test_dataset = HDF5(data_file, mode='test')
 
-    data_file = h5py.File(os.path.join(data_path, 'Brain.hdf5'))
+    data_file = h5py.File(os.path.join(data_path, 'BraTS.hdf5'))
     eval_val_dataset = HDF5(data_file, mode='val')
     eval_test_dataset = HDF5(data_file, mode='test')
 

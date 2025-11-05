@@ -12,8 +12,7 @@ class Model(torch.nn.Module):
         n_angle = 1000
         freq_cutoff = 8
         self.num_classes = 2
-        encoder_dim = 64
-        decoder_dim = 64
+        transformer_dim = 64
 
         self.convolution_stem1 = torch.nn.Sequential(
             snn.SE2ConvType1(3,8,5, freq_cutoff, n_angle=n_angle, padding='same'),
@@ -27,18 +26,18 @@ class Model(torch.nn.Module):
         self.convolution_stem2 = torch.nn.Sequential(
             snn.SE2ConvType2(16,32,5, freq_cutoff, n_angle=n_angle, padding='same'),
             snn.SE2NormNonLinearity(32, freq_cutoff),
-            snn.SE2ConvType2(32,encoder_dim,5, freq_cutoff, n_angle=n_angle, padding='same'),
+            snn.SE2ConvType2(32,transformer_dim,5, freq_cutoff, n_angle=n_angle, padding='same'),
             snn.SE2BatchNorm(),
         )
 
         self.pool2 = snn.SE2AvgPool(4)
 
         self.encoder_decoder = torch.nn.Sequential(
-            snn.SE2TransformerEncoder(encoder_dim, 8, freq_cutoff, n_layers=4, add_pos_enc=True),
+            snn.SE2TransformerEncoder(transformer_dim, 8, freq_cutoff, n_layers=4, add_pos_enc=True),
         )
  
         self.convolution_head1 = torch.nn.Sequential(
-            snn.SE2ConvType2(2*decoder_dim,32,5, freq_cutoff, n_angle=n_angle, padding = 'same'),
+            snn.SE2ConvType2(2*transformer_dim,32,5, freq_cutoff, n_angle=n_angle, padding = 'same'),
             snn.SE2NormNonLinearity(32, freq_cutoff),
             snn.SE2ConvType2(32,16,5, freq_cutoff, n_angle=n_angle, padding = 'same'),
             snn.SE2BatchNorm(),

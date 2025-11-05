@@ -9,21 +9,21 @@ class Model(torch.nn.Module):
     def __init__(self) -> None:
         super(Model, self).__init__()
         self.num_classes = 2
-        transformer_dim = 156
+        transformer_dim = 512
 
         self.convolution_stem1 = torch.nn.Sequential(
-            torch.nn.Conv2d(3,32,5, padding='same'),
+            torch.nn.Conv2d(3,64,5, padding='same'),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(32,64,5, padding='same'),
-            torch.nn.BatchNorm2d(64),
+            torch.nn.Conv2d(64,128,5, padding='same'),
+            torch.nn.BatchNorm2d(128),
         )
         
         self.pool1 = torch.nn.AvgPool2d(4)
   
         self.convolution_stem2 =  torch.nn.Sequential(
-            torch.nn.Conv2d(64,128,5, padding='same'),
+            torch.nn.Conv2d(128,256,5, padding='same'),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(128,transformer_dim,5, padding='same'),
+            torch.nn.Conv2d(256,transformer_dim,5, padding='same'),
             torch.nn.BatchNorm2d(transformer_dim),
 
         )
@@ -35,17 +35,17 @@ class Model(torch.nn.Module):
         )
  
         self.convolution_head1 = torch.nn.Sequential(
-            torch.nn.Conv2d(2*transformer_dim,128,5, padding = 'same'),
+            torch.nn.Conv2d(2*transformer_dim,256,5, padding = 'same'),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(128,64,5, padding = 'same'),
-            torch.nn.BatchNorm2d(64),
+            torch.nn.Conv2d(256,128,5, padding = 'same'),
+            torch.nn.BatchNorm2d(128),
         )
 
         self.convolution_head2 = torch.nn.Sequential(
-            torch.nn.Conv2d(2*64,32,5, padding = 'same'),
+            torch.nn.Conv2d(2*128,64,5, padding = 'same'),
             torch.nn.ReLU(),
-            torch.nn.BatchNorm2d(32),
-            torch.nn.Conv2d(32,self.num_classes,5, padding = 'same'),
+            torch.nn.BatchNorm2d(64),
+            torch.nn.Conv2d(64,self.num_classes,5, padding = 'same'),
         )
 
         

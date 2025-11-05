@@ -8,45 +8,45 @@ class Model(torch.nn.Module):
     def __init__(self) -> None:
         super(Model, self).__init__()
         self.num_classes = 4
-        transformer_dim = 208
+        transformer_dim = 329
 
         self.convolution_stem1 = torch.nn.Sequential(
-            torch.nn.Conv3d(4,32,7, stride=2),
+            torch.nn.Conv3d(4,30,7, stride=2),
             torch.nn.ReLU(),
-            torch.nn.Conv3d(32,32,5, padding='same'),
-            torch.nn.BatchNorm3d(32),
+            torch.nn.Conv3d(30,60,5, padding='same'),
+            torch.nn.BatchNorm3d(60),
         )
         
         self.pool1 = torch.nn.AvgPool3d(4)
   
         self.convolution_stem2 = torch.nn.Sequential(
-            torch.nn.Conv3d(32,64,5, padding='same'),
+            torch.nn.Conv3d(60,120,5, padding='same'),
             torch.nn.ReLU(),
-            torch.nn.Conv3d(64, transformer_dim,5, padding='same'),
+            torch.nn.Conv3d(120, transformer_dim,5, padding='same'),
             torch.nn.BatchNorm3d(transformer_dim),
         )
 
         self.pool2 = torch.nn.AvgPool3d(4)
 
         self.encoder_decoder = torch.nn.Sequential(
-            torch.nn.Linear(transformer_dim, 2*transformer_dim),
+            torch.nn.Linear(transformer_dim, 4*transformer_dim),
             torch.nn.ReLU(),
-            torch.nn.Linear(2*transformer_dim, transformer_dim),
+            torch.nn.Linear(4*transformer_dim, transformer_dim),
         )
         self.norm = torch.nn.BatchNorm3d(transformer_dim)
  
         self.convolution_head1 = torch.nn.Sequential(
-            torch.nn.Conv3d(2*transformer_dim,64,5, padding = 'same'),
+            torch.nn.Conv3d(2*transformer_dim,120,5, padding = 'same'),
             torch.nn.ReLU(),
-            torch.nn.Conv3d(64,32,5, padding = 'same'),
-            torch.nn.BatchNorm3d(32),
+            torch.nn.Conv3d(120,60,5, padding = 'same'),
+            torch.nn.BatchNorm3d(60),
         )
 
         self.convolution_head2 = torch.nn.Sequential(
-            torch.nn.Conv3d(2*32,16,5, padding = 'same'),
+            torch.nn.Conv3d(2*60,30,5, padding = 'same'),
             torch.nn.ReLU(),
-            torch.nn.BatchNorm3d(16),
-            torch.nn.Conv3d(16,self.num_classes,5, padding = 'same'),
+            torch.nn.BatchNorm3d(30),
+            torch.nn.Conv3d(30,self.num_classes,5, padding = 'same'),
         )
 
         
@@ -84,14 +84,14 @@ class Model(torch.nn.Module):
 #######################################################################################################################
 
 def get_datasets(data_path, rotate = True):
-    data_file = h5py.File(os.path.join(data_path, 'Brain_patched.hdf5'), 'r')
+    data_file = h5py.File(os.path.join(data_path, 'BraTS_patched.hdf5'), 'r')
     train_dataset = HDF5(data_file, mode='train')
     if rotate:
         train_dataset = RandomRotate(train_dataset)
     val_dataset = HDF5(data_file, mode='val')
     test_dataset = HDF5(data_file, mode='test')
 
-    data_file = h5py.File(os.path.join(data_path, 'Brain.hdf5'))
+    data_file = h5py.File(os.path.join(data_path, 'BraTS.hdf5'))
     eval_val_dataset = HDF5(data_file, mode='val')
     eval_test_dataset = HDF5(data_file, mode='test')
 
